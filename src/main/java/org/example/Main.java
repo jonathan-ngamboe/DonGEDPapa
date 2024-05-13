@@ -7,8 +7,8 @@ public class Main {
     public static void main(String[] args) {
         ApiClient client = new ApiClient("http://157.26.83.80:2240/");
         try {
-            // Get token
-            String token = client.getToken("admin2", "admin2");
+            // Authenticate
+            client.authenticate("admin2", "admin2");
 
             // Advanceed search request
             JSONObject query = new JSONObject();

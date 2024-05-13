@@ -17,7 +17,7 @@ public class ApiClient {
         this.baseUrl = baseUrl;
     }
 
-    public String getToken(String username, String password) throws Exception {
+    public void authenticate(String username, String password) throws Exception {
         String url = baseUrl + "/token";
         String response = null;
         HttpURLConnection connection = null;
@@ -30,7 +30,6 @@ public class ApiClient {
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 response = JSONUtilities.read(connection);
                 this.token = new JSONObject(response).getString("access_token");
-                return token;
             } else {
                 throw new IOException("Failed : HTTP error code : " + connection.getResponseCode());
             }
