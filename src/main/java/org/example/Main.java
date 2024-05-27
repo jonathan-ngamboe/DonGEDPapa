@@ -12,15 +12,30 @@ public class Main {
             // Authenticate
             client.authenticate("admin2", "admin2");
 
-            // Advanceed search request
+            // Get the content type ID by calling the API
+            String contentTypes = client.getContentTypes();
+            JSONArray contentTypesArray = new JSONArray(contentTypes);
+            int contentTypeId = -1;
+            for (int i = 0; i < contentTypesArray.length(); i++) {
+                JSONObject jsonObject = contentTypesArray.getJSONObject(i);
+                if (jsonObject.getString("text").equals("Note de frais")) {
+                    contentTypeId = jsonObject.getInt("id");
+                    break;
+                }
+            }
+
+            if(contentTypeId == -1) {
+                throw new Exception("Content type ID not found");
+            }
+
+            // Advanceed search request to get the notes de frais
             JSONObject query = new JSONObject();
             query.put("searchPattern", "(;NDF_etat|l01|Remboursement effectué - En attente d'exportation|list;)");
-            query.put("contentTypeIDs", "140");
+            query.put("contentTypeId", contentTypeId);
             String notes_de_frais = client.advancedSearchRequest(query).toString();
 
-            // Change all the states to "Remboursement effectué - Exporté"
+            // Validate the notes de frais
             JSONArray jsonArray = new JSONArray(notes_de_frais); // Parse the JSON data to a JSONArray
-            // Iterate through the array
             for (int i = 0; i < jsonArray.length(); i++) {
                 // Get each JSONObject
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -29,7 +44,12 @@ public class Main {
                 int objectId = jsonObject.getInt("ObjectID");
 
                 // Validate
-                client.validate(objectId);
+                try {
+                    client.validate(objectId);
+                } catch (Exception e) {
+                    System.out.println("Failed to change state for object ID: " + objectId);
+                    e.printStackTrace();
+                }
             }
 
         } catch (Exception e) {
