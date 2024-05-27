@@ -85,4 +85,26 @@ public class ApiClient {
             }
         }
     }
+
+    public String getContentTypes() throws Exception {
+        String url = baseUrl + "api/content-type/list";
+        HttpURLConnection connection = null;
+
+        try {
+            connection = JSONUtilities.write(url, JSONUtilities.RequestMethod.GET, null, token);
+
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                String response = JSONUtilities.read(connection);
+                return response;
+            } else {
+                throw new IOException("Failed to get content types : HTTP error code : " + connection.getResponseCode());
+            }
+        } catch (IOException e) {
+            throw new Exception("Error while getting content types", e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
 }
