@@ -53,10 +53,32 @@ public class ApiClient {
                 String response = JSONUtilities.read(connection);
                 return response;
             } else {
-                throw new IOException("Failed : HTTP error code : " + connection.getResponseCode());
+                throw new IOException("Failed to make advanced search request : HTTP error code : " + connection.getResponseCode());
             }
         } catch (IOException | JSONException e) {
             throw new Exception("Error while making advanced search request", e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    public void validate(int id) throws Exception {
+        String url = baseUrl + "api/flow/validate/" + id;
+        HttpURLConnection connection = null;
+
+        System.out.println("URL : " + url);
+
+        try {
+            connection = JSONUtilities.write(url, JSONUtilities.RequestMethod.POST, null, token);
+            System.out.println(connection.getResponseMessage());
+
+            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                throw new IOException("Failed to validate : HTTP error code : " + connection.getResponseCode());
+            }
+        } catch (IOException e) {
+            throw new Exception("Error while validating", e);
         } finally {
             if (connection != null) {
                 connection.disconnect();
